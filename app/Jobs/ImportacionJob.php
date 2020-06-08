@@ -30,9 +30,7 @@ class ImportacionJob implements ShouldQueue
      */
     public function handle()
     {
-
-		factory(Prestacion::class, 2000)->create();
-/*
+		//factory(Prestacion::class, 2000)->create();
 		if (($handle = fopen("storage/app/prestaciones.csv", "r")) !== FALSE) {
 			$headers = fgetcsv($handle, 1000, ";");
 			for($i = 1;($data = fgetcsv($handle, 1000, ";")) !== FALSE; $i++) {
@@ -45,6 +43,5 @@ class ImportacionJob implements ShouldQueue
 			}
     	}	
 	    fclose($handle);
-*/
     }
 }

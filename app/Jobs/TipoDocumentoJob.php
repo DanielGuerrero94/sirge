@@ -35,10 +35,8 @@ class TipoDocumentoJob implements ShouldQueue
 
 		$advertencias =	array_map(function($value) {
 			return [
-				'prestacion_id' => $value->check_tipo_documento,
-				'column' => 'beneficiario_tipo_documento',
-				'message' => 'El tipo de documento no es valido'
-			];
+						'prestacion_id' => $value->check_tipo_documento
+				];
 		}, $result);
 
 		foreach($advertencias as $advertencia) {

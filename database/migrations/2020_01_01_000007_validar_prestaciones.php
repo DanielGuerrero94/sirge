@@ -67,9 +67,9 @@ HEREDOC;
 DROP FUNCTION check_sexo;
 HEREDOC;
 		$statements[] = <<<'HEREDOC'
-CREATE OR REPLACE FUNCTION check_sexo() RETURNS SETOF integer AS $check_sexo$
+CREATE OR REPLACE FUNCTION check_sexo() RETURNS table(id_provincia character(2), id_prestacion integer, beneficiario_sexo character(1)) AS $check_sexo$
     BEGIN
-		RETURN QUERY SELECT id from prestaciones where beneficiario_sexo !~ 'M|F';
+		RETURN QUERY SELECT prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.beneficiario_sexo from prestaciones where prestaciones.beneficiario_sexo !~ 'M|F';
     END;
 $check_sexo$ LANGUAGE plpgsql;
 HEREDOC;
@@ -79,9 +79,9 @@ DROP FUNCTION check_clase_documento;
 HEREDOC;
 
 		$statements[] = <<<'HEREDOC'
-CREATE OR REPLACE FUNCTION check_tipo_documento() RETURNS table(id_provincia character(2), id_prestacion integer, beneficiario_clase_documento character(1)) AS $check_clase_documento$
+CREATE OR REPLACE FUNCTION check_clase_documento() RETURNS table(id_provincia character(2), id_prestacion integer, beneficiario_clase_documento character(1)) AS $check_clase_documento$
     BEGIN
-		RETURN QUERY SELECT id from prestaciones where beneficiario_clase_documento !~ 'A|P|C';
+		RETURN QUERY SELECT prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.beneficiario_clase_documento from prestaciones where prestaciones.beneficiario_clase_documento !~ 'A|P|C';
     END;
 $check_clase_documento$ LANGUAGE plpgsql;
 HEREDOC;

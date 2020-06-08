@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\TipoAdvertencia;
 use Illuminate\Http\Request;
+use App\Exports\TipoAdvertenciaExport;
+use Excel;
 
 class TipoAdvertenciaController extends Controller
 {
@@ -82,4 +84,9 @@ class TipoAdvertenciaController extends Controller
     {
         //
     }
+
+	public function export(Request $request)
+	{
+		return Excel::download(new TipoAdvertenciaExport, 'tipo_advertencia.csv');
+	}
 }

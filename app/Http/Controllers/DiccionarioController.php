@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Diccionario;
 use Illuminate\Http\Request;
+use App\Exports\DiccionarioExport;
+use Excel;
 
 class DiccionarioController extends Controller
 {
@@ -82,4 +84,9 @@ class DiccionarioController extends Controller
     {
         //
     }
+
+	public function export (Request $request)
+	{
+		return Excel::download(new DiccionarioExport, 'diccionario.csv');
+	}	
 }

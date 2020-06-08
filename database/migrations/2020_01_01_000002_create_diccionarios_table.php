@@ -23,7 +23,7 @@ CREATE TABLE diccionarios (
     tipo character varying(100),
     obligatorio character(2),
     descripcion text,
-    ejemplo character varying(255),
+    ejemplo text,
     created_at timestamp(0) without time zone NOT NULL,
     updated_at timestamp(0) without time zone NOT NULL,
 	UNIQUE (tabla, orden)

@@ -83,6 +83,11 @@ class ImportacionController extends Controller
 	
     }
 
+	public function readCsvFile($filename, $callback)
+	{
+
+	}
+
     /**
      * Display the specified resource.
      *

@@ -1,0 +1,46 @@
+orden;campo;tipo;obligatorio;descripcion;ejemplo
+1;Id_Prestación;integer;SI;Id que la jurisdicción le asigna a la prestación.;
+2;Codigo_Prestación;character varying(11);SI;Según PSS. Prácticas complementarias de módulos quirúrgicos: deben reportarse como prestaciones independientes.;CTC001A97 o CTC007O24.4
+3;CUIE_Efector;character(6);SI;Según tabla de efectores;T03639
+4;Fecha_Prestacion;date;SI;Fecha en la que la prestacion fue brindada.;Formato date AAAA-MM-DD - Ej: 2020-10-31
+5;Apellido_Beneficiario;character varying(100);SI;Apellido del beneficiario de la prestación.;
+6;Nombre_Beneficiario;character varying(100);SI;Nombre del beneficiario de la prestación.;
+7;Clave_Beneficiario;character varying(16);SI;Clave de beneficiario de quien recibe la prestación.;1500100009026960
+8;Benef_Tipo_Documento;character(3);SI;Tipo de documento de quien recibe la prestación.;Valores permitidos: DNI: Documento Nacional de Identidad / CI: Cedula de Identidad / LC: Libreta Civica / Pas: Pasaporte / CM: Cedula Migratoria / CXX: Cedula Provincial (siendo XX el codigo de la provincia) / LE: Libreta de Enrolamiento / DEX: Documento extranjero / COM: Grupos de Comunidad (solo en los casos que la prestacion pertenezcan a grupos de comunidad) 
+9;Benef_Clase_Documento;character(1);SI;Clase de documento de quien recibe la prestación.;A: Ajeno / P: Propio / C: Grupos de comunidad (solo en los casos que la prestacion pertenezca a grupos de comunidad)
+10;Benef_Nro_Documento;character varying(14);SI;Número de documento de quien recibe la prestación.;33541511
+11;Sexo;character(1);SI;Sexo de quien recibe la prestación.;M: masculino / F: Femenino
+12;Fecha de Nacimiento;date;SI;Fecha de nacimiento de quien recibe la prestación.;Formato date AAAA-MM-DD - Ej: 2020-10-31
+13;Valor_Unitario_facturado;numeric(7,2);SI;Precio unitario al que la prestación fue facturada. ;Separador de decimal (,), sin separador de miles (usar hasta 2 decimales). Ej: 1000,00
+14;Cantidad_facturada;integer;SI;Cantidad de unidades facturadas por esta prestación.;Por defecto es 1 salvo que la prestacion contemple mas de 1 persona.
+15;Importe_Prestacion_Facturado;numeric(9,2);SI;Importe total facturado por esta prestación. Debe ser la multiplicacion del (orden 13) con (orden14). ;Separador de decimal (,), sin separador de miles (usar hasta 2 decimales). Ej: 1000,00
+16;id_factura;integer;SI;Id que la jurisdicción le asigna a la factura en la que está incluida la prestación.;
+17;numero_fact;character varying(100);SI;Número de la factura en la que está incluida la prestación.;
+18;fecha_fact;date;SI;Fecha de generación de la factura en la que está incluida la prestación.;Formato date AAAA-MM-DD - Ej: 2020-10-31
+19;Importe_Total_Factura;numeric(9,2);SI;Importe total de la factura en la que está incluida la prestación. Debe ser igual a la suma de Importe_Prestación_Facturado (orden 15) de todas las prestaciones con el mismo id_factura (orden 16).;Separador de decimal (,), sin separador de miles (usar hasta 2 decimales). Ej: 1000,00
+20;fecha_recepcion_fact;date;SI;Fecha de recepción por parte de la UG, independientemente de su recepción previa en otra dependencia del ministerio, de la factura en la que está incluida la prestación.;Formato date AAAA-MM-DD - Ej: 2020-10-31
+21;Alta complejidad;character(1);SI;Si: prestación de alta complejidad según PPS - No: resto.;Si / No
+22;id_liquidacion;integer;SI;Id que la jurisdicción le asigna a la liquidación en la que está incluida la prestación.;
+23;fecha liquidacion;date;SI;Fecha en la que se generó la liquidación en la que está incluida la prestación.;Formato date AAAA-MM-DD - Ej: 2020-10-31
+24;Valor_Unitario_aprobado;numeric(7,2);SI;Precio unitario al que la prestación fue aprobada por la UG.;Separador de decimal (,), sin separador de miles (usar hasta 2 decimales). Ej: 1000,00
+25;Cantidad_aprobada;integer;SI;Cantidad de unidades por esta prestación aprobadas por la UG. En caso de que la UG no apruebe ninguna prestación, este campo debe ser cero.;
+26;importe_Prestación_Aprobado;numeric(9,2);SI;Importe total por esta prestación aprobado por la UG. Debe ser la multiplicacion del Valor_unitario_aprobado(Orden 24) con la Cantidad_aprobada (Orden 25);Separador de decimal (,), sin separador de miles (usar hasta 2 decimales). Ej: 1000,00
+27;Numero de Comprobante Extracto Bcario;character varying(100);SI;Numero de referencia informado en el extracto bancario de la cuenta de la jurisdicicon ;
+28;id_dato_reportable_1;integer;SI;ID de dato reportable según RO - Anexo F;
+29;dato_reportable_1;character varying (255);SI;Dato reportable respetando lo establecido en cuanto a tipo de dato y máscara según RO - Anexo F;
+30;id_dato_reportable_2;integer;SI;ID de dato reportable según RO - Anexo F;
+31;dato_reportable_2;character varying (255);SI;Dato reportable respetando lo establecido en cuanto a tipo de dato y máscara según RO - Anexo F;
+32;id_dato_reportable_3;integer;SI;ID de dato reportable según RO - Anexo F;
+33;dato_reportable_3;character varying (255);SI;Dato reportable respetando lo establecido en cuanto a tipo de dato y máscara según RO - Anexo F;
+34;id_dato_reportable_4;integer;SI;ID de dato reportable según RO - Anexo F;
+35;dato_reportable_4;character varying (255);SI;Dato reportable respetando lo establecido en cuanto a tipo de dato y máscara según RO - Anexo F;
+36;id_dato_reportable_5;integer;SI;ID de dato reportable según RO - Anexo F;
+37;dato_reportable_5;character varying (255);SI;Dato reportable respetando lo establecido en cuanto a tipo de dato y máscara según RO - Anexo F;
+38;id_op;integer;SI;Id que la jurisdicción le asigna a la OP en la que está incluida la prestación.;
+39;numero_op;character varying(100);SI;Número de OP en la que está incluida la prestación.;
+40;fecha_op;date;SI;Fecha de generación de la OP en la que está incluida la prestación.;Formato date AAAA-MM-DD - Ej: 2020-10-31
+41;importe_total_op;numeric(7,2);SI;Importe total de la OP en la que está incluida la prestación. Debería ser igual a la suma de importe_Prestación_Aprobado de todas las prestaciones correspondientes a los id_factura incluidos en la OP. Si hubiera una diferencia, ésta debe estar perfectamente identificada en el expte de pago que deberá estar disponible para las auditorías en terreno. Éstas diferencias pueden ser debido al traslado de débitos de la AETI a los efectores por ejemplo. Es decir que no corresponden a ajustes ni en la cantidad ni el valor unitario aprobados con respecto a los facturados;Separador de decimal (,), sin separador de miles (usar hasta 2 decimales). Ej: 1000,00
+42;numero_expte;character varying(100);SI;Número de expediente en el que está incluida toda la documentación que justifica el pago.;
+43;fecha_debito_bancario;date;SI;Fecha en la que se realizó el débito en la cuenta cápitas por el pago de la prestación al efector.;Formato date AAAA-MM-DD - Ej: 2020-10-31
+44;importe_debito_bancario;numeric(9,2);SI;Importe total del débito bancario. Debe ser igual a la suma de importe_total_OP de todas las OP que se cancelan con esta transferencia.;Separador de decimal (,), sin separador de miles (usar hasta 2 decimales). Ej: 1000,00
+45;fecha_notificacion_efector;date;SI;Fecha de notificación al efector de la transferencia. Obligatorio para efectores indirectos VER CAF OBLIGACIONES UG;Formato date AAAA-MM-DD - Ej: 2020-10-31

@@ -91,6 +91,19 @@ return [
             'prefix_indexes' => true,
         ],
 
+       'sirge' => [
+            'driver' => 'pgsql',
+            'host' => env('SERVER_HOST'),
+            'port' => env('SERVER_PORT', '5432'),
+            'database' => env('SERVER_DATABASE'),
+            'username' => env('SERVER_USERNAME'),
+            'password' => env('SERVER_PASSWORD'),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'schema' => 'public',
+            'sslmode' => 'prefer',
+        ]
+
     ],
 
     /*

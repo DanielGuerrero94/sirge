@@ -16,7 +16,7 @@
 	    	        </a>
 					<ul class="dropdown-menu" role="menu" hidden>
 	                   	<li><a href="#" class="diccionario">Ver</a></li>
-	                    <li><a href="#">Descargar diccionario</a></li>
+	                    <li><a href="api/diccionario/export">Descargar diccionario</a></li>
 	            	    <li><a href="#">Descargar ejemplo</a></li>
 		            </ul>
 				</div>
@@ -38,37 +38,35 @@
 			</div>
 			<div class="box-body" style="display: none" id="subir-box">
 
-<div class="callout callout-success">
+			<div class="callout callout-success">
 					<h4><i class="icon fa fa-upload"></i>  Subida de archivo</h4>
 
                 <p>Desde esta opción usted podrá subir los archivos para la carga de prestaciones. Recuerde respetar la estructura de datos.</p>
 				<p>Si tiene dudas consulte en el boton "Diccionario" (arriba a la izquierda)</p>
-              </div>
-		
-				<div class="alert alert-danger" id="errores-div">
-			        <ul id="errores-form">
-			        </ul>
-			    </div>
+			</div>
+
 				<div class="row">
+				<form action="" method="pmst" enctype="multipart/form-data" id="subida">
 				<div class="col col-md-3">
-
-<form action="api/postCsv" method="post" enctype="multipart/form-data" id="subida">
-			<span class="btn btn-default fileinput-button">
+					<span class="btn btn-default fileinput-button">
 					<i class="glyphicon glyphicon-plus"></i>
-					<span>Seleccionar archivos</span>
-					<input id="fileupload" type="file" name="file" multiple>
-				</span>
-
-  <input type="file" name="fileToUpload" id="fileToUpload">
-  <input type="submit" value="Subit" name="submit">
-</form>
+					<span>Seleccionar archivo</span>
+						<input id="fileupload" type="file" name="file" multiple>
+					</span>
+				</div>
+					@if(true)
+					<div class="col col-md-3">
+						<select class="form-control" id="provincia" name="id_provincia" aria-hidden="true" placeholder="Seleccionar Provincia">
+						<option data-id="0">Seleccionar Provincia</option>
+						@foreach($provincias as $provincia)
+						<option data-id="{{$provincia->id_provincia}}" value="{{$provincia->id_provincia}}">{{$provincia->descripcion}}</option>
+						@endforeach
+						</select>
 					</div>
-				<div class="col col-md-9">
-				<div id="progress" class="progress">
-					<div class="progress-bar progress-bar-success"></div>
+					@endif
+				</form>
 				</div>
-				</div>
-				</div>
+			</div>
 				<!-- The container for the uploaded files -->
 				<div id="files" class="files"></div>
 <div class="modal fade modal-info">
@@ -106,6 +104,7 @@
 				</table>
 
 		
+			</div>
 			</div>
 			<div class="box-body" style="display: none" id="analisis-box">
 			</div>
@@ -189,6 +188,7 @@
 
 	function datatableDiccionario() {
 		return $('#diccionario-datatable').DataTable({
+			destroy:   true,
 			paging:   false,
 			searching:   false,
 	        ordering: false,
@@ -200,6 +200,8 @@
 	            { data: 'orden', title: 'Orden' },
 	            { data: 'campo', title: 'Campo' },
 				{ data: 'tipo', title: 'Tipo' },
+				{ data: 'descripcion', title: 'Descripción' },
+				{ data: 'ejemplo', title: 'Ejemplo' }
 	        ]
 		});
 	}
@@ -240,7 +242,9 @@
 	        columns: [
 	            { data: 'prestacion_id', title: 'ID'},
 				{ data: 'column', title: "Columna" },
-	            { data: 'message', title: 'Advertencia'}
+	            { data: 'message', title: 'Advertencia'},
+				{ data: 'value', title: 'Valor Equivocado' }
+				//{ data: 'ejemplo', title: 'Ejemplo' }
 	        ]
 		});
 	}
@@ -308,7 +312,6 @@
 	});
 
 		$(".content .analisis").on("click", showAnalisis)
-
 	}
 
 	$(document).ready(function(){
@@ -349,6 +352,45 @@
 		
 		refresh(dataSet)
 		*/
+
+		function getDataUploadFile() {
+		    var form = new FormData($("#subida")[0]);
+            var provincia = $('#id_provincia').val();
+            
+            data = [
+            {
+                name: 'file',
+                value: form
+            },
+            {
+                name: 'provincia',
+                value: provincia
+            }
+            ];
+			console.log(data);
+			return data;
+		}
+
+		$("#subir-box").on("change", "#subida input", function(event) {
+			data = getDataUploadFile();
+			$.ajax({
+				url: "api/postCsv",
+				type: 'post',
+				data: data,
+				processData: false,
+				contentType: false,
+				success: function (data) {
+					console.log("success");
+					alert("Se subio el archivo.");
+					showTabla()
+				},
+				error: function (data) {
+					alert("Error al subir un archivo.");
+					console.log(data)
+				}
+			});
+		});
+
 
 	});
 </script>

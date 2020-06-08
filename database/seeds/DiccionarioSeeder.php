@@ -35,6 +35,25 @@ HEREDOC;
 			Diccionario::create($data);
 		}
 
+		if (($handle = fopen("database/diccionario.csv", "r")) !== FALSE) {
+			$headers = fgetcsv($handle, 1000, ";");
+			for($i = 1;($data = fgetcsv($handle, 1000, ";")) !== FALSE; $i++) {
+				$data = array_map(function($value) {
+				   return $value === "" ? NULL : $value;
+				}, $data);
+				$data = array_combine($headers, $data);
+				//dump($data);
+				$orden = $data['orden'];
+				$descripcion = $data['descripcion'];
+				$ejemplo = $data['ejemplo'];
+				$diccionario = Diccionario::where('orden', $orden)->first();
+				$diccionario->update(['descripcion' => $descripcion, 'ejemplo' => $ejemplo]);
+
+			}
+    	}	
+	    fclose($handle);
+
+
     }
 
 }
