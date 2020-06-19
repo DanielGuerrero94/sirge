@@ -3,12 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Importacion;
-use App\Prestacion;
+use App\Jobs\ImportacionJob;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
 
 class ImportacionController extends Controller
 {
+	/**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth', ['except' => ['store', 'index']]);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -16,7 +25,22 @@ class ImportacionController extends Controller
      */
     public function index()
     {
-		return datatables()->of(Importacion::all())->toJson();
+		//$importaciones = Importacion::select('id_provincia', 'periodo', 'fecha', 'facturadas', 'liquidadas', 'pagadas', 'total')->where('periodo', '-------')->get()->toArray();
+		//dump($importaciones);
+		$importaciones = \DB::select("select i.id_provincia, i.periodo, i.fecha::date, i.facturadas, i.liquidadas, i.pagadas, (select count(*) from prestaciones where created_at >= i.fecha) as progress, total from importaciones i");
+		return datatables()->of($importaciones)->toJson();
+    }
+
+    /**
+     * Show progress.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function progress()
+    {
+		$counts = DB::table('prestaciones')->select('count(*)')->where('created_at', '>=', $importaciones[0]->fecha)->get();
+		dump($importaciones);
+		return datatables()->of($importaciones)->toJson();
     }
 
     /**
@@ -37,56 +61,26 @@ class ImportacionController extends Controller
      */
     public function store(Request $request)
     {
-        //$id_provincia = $request->id_provincia;
-		$id_provincia = '01';	
-        //$filename = $request->file->originalName;
-		$filename = "storage/app/prestaciones.csv";
+        $periodo = $request->periodo;
+        $id_provincia = $request->id_provincia;
+        $filename = $request->filename;
 
-		$output = shell_exec('wc -l '. $filename);
-		preg_match('/^[0-9]* /', $output, $matches);
-		$total = $matches[0];
-	
-		if (($handle = fopen($filename, "r")) !== FALSE) {
-			$headers = fgetcsv($handle, 1000, ";");
-			for($i = 1;($data = fgetcsv($handle, 1000, ";")) !== FALSE; $i++) {
-				$data = array_map(function($value) {
-				   return $value === "" ? NULL : $value;
-				}, $data);
-				$data = array_combine($headers, $data);
+		if(is_null($periodo))
+			return response()->json(['mensaje' => 'Tiene que especificar un periodo'], 400);
 
-				if (isset($data['fecha_prestacion'])) {
-					$fecha_prestacion = $data['fecha_prestacion'];
-					$periodo = substr($fecha_prestacion, 0, 6);
-					$importacion = Importacion::where('id_provincia', $id_provincia)->where('periodo', $periodo)->first();
-					if ($importacion == null) {
-						Importacion:create([
-							'id_provincia' => $id_provincia,
-							'periodo' => $periodo,
-							'fecha' => Carbon::now(),
-							'original' => $filename,
-							'total' => $total,
-							'facturadas' => 0,
-							'liquidadas' => 0,
-							'pagadas' => 0
-						]);
-					}
-				}
-				Prestacion::create($data);
-			}
-		}	
+		if(is_null($id_provincia))
+			return response()->json(['mensaje' => 'Tiene que especificar el id de provincia'], 400);
 
-		if ($handle == FALSE) {
-			fclose($handle);
-			return response()->json(['status' => 'error', 'message' => 'No se puede abrir el archivo']);
-		}
-		fclose($handle);
-	
+		if(is_null($filename))
+			return response()->json(['mensaje' => 'Tiene que especificar el nombre de archivo'], 400);
+
+
+		
+		$data = compact('id_provincia', 'periodo', 'filename');
+		ImportacionJob::dispatch($data)->onQueue($id_provinica.'-queue');
+
+		return response()->json(['mensaje' => 'Se subio la importacion'], 200);
     }
-
-	public function readCsvFile($filename, $callback)
-	{
-
-	}
 
     /**
      * Display the specified resource.

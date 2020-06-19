@@ -17,9 +17,8 @@ class TipoDocumentoComunidadJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($bag)
     {
-        //
     }
 
     /**

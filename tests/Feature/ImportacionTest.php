@@ -15,8 +15,7 @@ class ImportacionTest extends TestCase
      */
     public function testExample()
     {
-		$request = request(['id_provincia' => '01', 'filename' => 'test.csv']);
-		$this->assertNotNull($request);
+		$request = request(['id_provincia' => '01', 'filename' => 'prestaciones_01.csv']);
 
         $response = $this->post('/importaciones', $request);
 

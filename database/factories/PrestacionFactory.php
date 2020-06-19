@@ -4,17 +4,35 @@
 
 use Faker\Generator as Faker;
 
-$factory->define('App\Prestacion', function (Faker $faker) {
-
 	if (!function_exists('codigo_provincia')) {
 		function codigo_provincia(Faker $faker) {
 			$n = $faker->numberBetween(1, 24);
 			return $n < 10?'0'.$n:''.$n;
 		}	
 	}	
+	
+	if (!function_exists('prestacion_codigo')) {
+		function prestacion_codigo(Faker $faker) {
+			return $faker->randomElement([
+				"CTC001A97","CTC010A97","CTC008A97","IMV013A98","PRP008A98","IMV002A98","CTC001R74","CTC006W78","IMV003A98","NPE33", "NNNNNNNNN"
+			]);
+		}
+	}	
 
+	if (!function_exists('cuie')) {
+		function cuie(Faker $faker) {
+			return $faker->randomElement([
+				"T01316", "B00836", "M00981", "T06253", "T10348", "X01429", "T06256", "T20030", "Y04913", "A03593", "NNNNNN"
+			]);
+		}
+	}	
+
+
+$factory->define('App\Prestacion', function (Faker $faker) {
 
 	$id_provincia = codigo_provincia($faker);
+	$prestacion_codigo = prestacion_codigo($faker);
+	$cuie = cuie($faker);
 	$prestacion_fecha = $faker->dateTimeBetween('2020-01-01', 'now');
 	$sexo = $faker->randomElement(array('F', 'N', 'M'));
 	$nombre = $sexo == 'F'?$faker->firstName('female'):$faker->firstName('male');
@@ -32,8 +50,8 @@ $factory->define('App\Prestacion', function (Faker $faker) {
     return [
     	'id_provincia' => $id_provincia,
     	'id_prestacion' => $faker->randomNumber(),
-    	'prestacion_codigo' => 'C01202',
-    	'cuie' => 'E02345',
+    	'prestacion_codigo' => $prestacion_codigo,
+    	'cuie' => $cuie,
 		'prestacion_fecha' => $prestacion_fecha,
 		'beneficiario_apellido' => $faker->lastName(),
 		'beneficiario_nombre' => $nombre,
@@ -81,15 +99,9 @@ $factory->define('App\Prestacion', function (Faker $faker) {
 
 $factory->state('App\Prestacion', 'liquidada', function (Faker $faker) {
 
-	if (!function_exists('codigo_provincia')) {
-		function codigo_provincia(Faker $faker) {
-			$n = $faker->numberBetween(1, 24);
-			return $n < 10?'0'.$n:''.$n;
-		}	
-	}	
-
-
 	$id_provincia = codigo_provincia($faker);
+	$prestacion_codigo = prestacion_codigo($faker);
+	$cuie = cuie($faker);
 	$prestacion_fecha = $faker->dateTimeBetween('2020-01-01', 'now');
 	$sexo = $faker->randomElement(array('F', 'N', 'M'));
 	$nombre = $sexo == 'F'?$faker->firstName('female'):$faker->firstName('male');

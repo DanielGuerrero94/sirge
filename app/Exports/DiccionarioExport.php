@@ -12,6 +12,6 @@ class DiccionarioExport implements FromCollection
     */
     public function collection()
     {
-        return Diccionario::select('orden', 'campo', 'tipo', 'descripcion', 'ejemplo')->get();
+        return Diccionario::select('orden', 'campo', 'tipo', 'descripcion', 'ejemplo')->get()->sortBy('orden');
     }
 }

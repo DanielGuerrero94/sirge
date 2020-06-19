@@ -7,40 +7,24 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use DB;
-use App\Advertencia;
 
-class TipoDocumentoJob implements ShouldQueue
+class TipoDocumentoJob extends CheckJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+	protected $procedure = "check_tipo_documento";
+	protected $column = "beneficiario_tipo_documento";
+	protected $id_tipo_advertencia = 5;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($bag)
     {
-        //
+        $this->id_importacion = $bag['id_importacion'];
+        $this->id_provincia = $bag['id_provincia'];
     }
 
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
-    public function handle()
-    {
-		$result = DB::select("select * from check_tipo_documento()");
-
-		$advertencias =	array_map(function($value) {
-			return [
-						'prestacion_id' => $value->check_tipo_documento
-				];
-		}, $result);
-
-		foreach($advertencias as $advertencia) {
-			Advertencia::create($advertencia);
-		}
-    }
 }

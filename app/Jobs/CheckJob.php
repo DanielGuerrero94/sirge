@@ -8,6 +8,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use DB;
+use App\Advertencia;
 
 class CheckJob implements ShouldQueue
 {
@@ -16,15 +17,18 @@ class CheckJob implements ShouldQueue
 	protected $procedure;
 	protected $column;
 	protected $id_tipo_advertencia;
+	protected $id_importacion;
+	protected $id_provincia;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($bag)
     {
-        //
+        $this->id_importacion = $bag['id_importacion'];
+        $this->id_provincia = $bag['id_provincia'];
     }
 
     /**
@@ -34,17 +38,17 @@ class CheckJob implements ShouldQueue
      */
     public function handle()
     {
-		$query = 'select * from '.$this->procedure.'()';
-		dump($query);
+		$query = 'select * from '.$this->procedure.'('.$this->id_importacion.',\''.$this->id_provincia.'\')';
 		$result = DB::select($query);
-		dump($result);
 
 		$advertencias =	array_map(function($value) {
+			$value = (array) $value;		
 			return [
-				'id_prestacion' => $value->id_prestacion,
-				'id_provincia' => $value->id_provincia,
-				'id_tipo_advertencia' => $value->$this->id_tipo_advertencia,
-				'value' => $value->$this->column
+				'id_importacion' => $this->id_importacion,
+				'id_provincia' => $this->id_provincia,
+				'id_prestacion' => $value['id_prestacion'],
+				'id_tipo_advertencia' => $this->id_tipo_advertencia,
+				'value' => $value[$this->column]
 			];
 		}, $result);
 

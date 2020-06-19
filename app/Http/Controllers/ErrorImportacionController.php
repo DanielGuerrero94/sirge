@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Advertencia;
+use App\ErrorImportacion;
 use Illuminate\Http\Request;
 
-class AdvertenciaController extends Controller
+class ErrorImportacionController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,7 +14,7 @@ class AdvertenciaController extends Controller
      */
     public function index()
     {
-		return datatables(Advertencia::all())->toJson();
+		return datatables()->of(ErrorImportacion::all())->toJson();
     }
 
     /**
@@ -41,10 +41,10 @@ class AdvertenciaController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Advertencia  $advertencia
+     * @param  \App\ErrorImportacion  $errorImportacion
      * @return \Illuminate\Http\Response
      */
-    public function show(Advertencia $advertencia)
+    public function show(ErrorImportacion $errorImportacion)
     {
         //
     }
@@ -52,10 +52,10 @@ class AdvertenciaController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Advertencia  $advertencia
+     * @param  \App\ErrorImportacion  $errorImportacion
      * @return \Illuminate\Http\Response
      */
-    public function edit(Advertencia $advertencia)
+    public function edit(ErrorImportacion $errorImportacion)
     {
         //
     }
@@ -64,10 +64,10 @@ class AdvertenciaController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Advertencia  $advertencia
+     * @param  \App\ErrorImportacion  $errorImportacion
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Advertencia $advertencia)
+    public function update(Request $request, ErrorImportacion $errorImportacion)
     {
         //
     }
@@ -75,10 +75,10 @@ class AdvertenciaController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Advertencia  $advertencia
+     * @param  \App\ErrorImportacion  $errorImportacion
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Advertencia $advertencia)
+    public function destroy(ErrorImportacion $errorImportacion)
     {
         //
     }

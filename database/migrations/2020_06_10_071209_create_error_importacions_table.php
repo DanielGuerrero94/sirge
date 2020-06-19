@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAdvertenciasTable extends Migration
+class CreateErrorImportacionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,13 @@ class CreateAdvertenciasTable extends Migration
      */
     public function up()
     {
-        Schema::create('advertencias', function (Blueprint $table) {
+        Schema::create('error_importacions', function (Blueprint $table) {
             $table->id();
-			$table->integer('id_importacion');
+            $table->integer('id_importacion');
 			$table->char('id_provincia', 2);
-			$table->integer('id_prestacion');
-			$table->integer('id_tipo_advertencia');
-			$table->string('value')->nullable();
+            $table->integer('id_prestacion');
+            $table->string('codigo');
+            $table->string('mensaje');
             $table->timestamps();
 			$table->softDeletes();
         });
@@ -32,6 +32,6 @@ class CreateAdvertenciasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('advertencias');
+        Schema::dropIfExists('error_importacions');
     }
 }

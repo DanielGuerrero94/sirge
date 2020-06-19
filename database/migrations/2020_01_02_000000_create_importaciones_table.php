@@ -15,7 +15,7 @@ class CreateImportacionesTable extends Migration
     {
         Schema::create('importaciones', function (Blueprint $table) {
             $table->id();
-            $table->integer('id_provincia')->nullable();
+            $table->char('id_provincia', 2)->nullable();
             $table->char('periodo', 7)->nullable();
             $table->dateTime('fecha')->nullable();
             $table->string('original')->nullable();

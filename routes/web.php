@@ -20,7 +20,7 @@ Route::get('/', function () {
 Route::get('/doi3',function() {
 	config(['database.connections.sirge.port' => '5432']);
 	$provincias = App\Provincia::get();
-	return view('doi3', ['provincias' => $provincias]);
+	return view('doi3.doi3', ['provincias' => $provincias]);
 });
 
 Route::view('/analisis', 'analisis');
@@ -34,5 +34,6 @@ Route::get('diccionarios/export', 'DiccionarioController@export');
 Route::resource('diccionarios', 'DiccionarioController');
 Route::resource('advertencias', 'AdvertenciaController');
 Route::resource('tipo_advertencias', 'TipoAdvertenciaController');
+Route::resource('errores_importacion', 'ErrorImportacionController');
 
 Route::get('tipo_advertencias/export', 'TipoAdvertenciaController@export');

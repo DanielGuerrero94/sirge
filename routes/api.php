@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::put('prestaciones', function(Request $request) {
+	$prestaciones = json_decode($request->json, true);
+	return response($prestaciones);
+});
+
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });

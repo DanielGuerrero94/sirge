@@ -16,7 +16,7 @@ class DiccionarioController extends Controller
      */
     public function index()
     {
-		return datatables()->of(Diccionario::all())->toJson();
+		return datatables()->of(Diccionario::get()->sortBy('orden'))->toJson();
     }
 
     /**

@@ -16,7 +16,7 @@ class TipoAdvertenciaController extends Controller
      */
     public function index()
     {
-		dump(TipoAdvertencia::all());
+		return response()->json(TipoAdvertencia::all());
     }
 
     /**
