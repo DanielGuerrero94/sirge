@@ -31,6 +31,8 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::resource('importaciones', 'ImportacionController');
 Route::resource('prestaciones', 'PrestacionController');
 Route::get('diccionarios/export', 'DiccionarioController@export');
+Route::get('jobs', 'AdvertenciaController@jobs');
+Route::get('advertencias/{importacion}', 'AdvertenciaController@jobs');
 Route::resource('diccionarios', 'DiccionarioController');
 Route::resource('advertencias', 'AdvertenciaController');
 Route::resource('tipo_advertencias', 'TipoAdvertenciaController');

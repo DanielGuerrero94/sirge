@@ -14,7 +14,6 @@ class AdvertenciaController extends Controller
      */
     public function index()
     {
-		return datatables(Advertencia::all())->toJson();
     }
 
     /**
@@ -82,4 +81,16 @@ class AdvertenciaController extends Controller
     {
         //
     }
+
+	/**
+     * Show the state of the jobs.
+     *
+     * @param  \App\Advertencia  $advertencia
+     * @return \Illuminate\Http\Response
+     */
+    public function jobs(int $id_importacion = 1)
+    {
+        return \DB::select('select ta.id as id_tipo_advertencia, ta.column, ta.message, a.status, (select count(*) from advertencias ad where ad.id_importacion = a.id::int and ad.id_tipo_advertencia = ta.id) from tipo_advertencias ta left join v_jobs_analisis a on a.id_tipo_advertencia::int = ta.id where a.id::int = '.$id_importacion);
+    }
+
 }

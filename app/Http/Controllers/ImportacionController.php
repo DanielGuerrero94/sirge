@@ -27,7 +27,7 @@ class ImportacionController extends Controller
     {
 		//$importaciones = Importacion::select('id_provincia', 'periodo', 'fecha', 'facturadas', 'liquidadas', 'pagadas', 'total')->where('periodo', '-------')->get()->toArray();
 		//dump($importaciones);
-		$importaciones = \DB::select("select i.id_provincia, i.periodo, i.fecha::date, i.facturadas, i.liquidadas, i.pagadas, (select count(*) from prestaciones where created_at >= i.fecha) as progress, total from importaciones i");
+		$importaciones = \DB::select("select * from v_importacion_resumen");
 		return datatables()->of($importaciones)->toJson();
     }
 
@@ -77,7 +77,7 @@ class ImportacionController extends Controller
 
 		
 		$data = compact('id_provincia', 'periodo', 'filename');
-		ImportacionJob::dispatch($data)->onQueue($id_provinica.'-queue');
+		ImportacionJob::dispatch($data)->onQueue($id_provincia.'-queue');
 
 		return response()->json(['mensaje' => 'Se subio la importacion'], 200);
     }

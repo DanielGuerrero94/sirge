@@ -19,7 +19,7 @@ class CreateErrorImportacionsTable extends Migration
 			$table->char('id_provincia', 2);
             $table->integer('id_prestacion');
             $table->string('codigo');
-            $table->string('mensaje');
+            $table->text('mensaje');
             $table->timestamps();
 			$table->softDeletes();
         });

@@ -18,6 +18,17 @@ use App\Prestacion;
 use Faker\Generator as Faker;
 use App\Jobs\ImportancionJob;
 
+Artisan::command('unzip', function () {
+	$filename = '276.zip';
+	$path = storage_path('app/'.$filename);
+	
+	$this->info($filename);
+
+	$data = system('unzip '.$filename);
+
+	$this->info($data);	
+})->describe('Unzip a file');
+
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
@@ -43,22 +54,36 @@ Artisan::command('sumar:seed {amount} {id_provincia?}', function (int $amount, s
 	}
 })->describe('Display column and type of a table');
 
-Artisan::command('sumar:importacion', function() {
-	$request = new Illuminate\Http\Request(['id_provincia' => '01', 'filename' => 'prestaciones_01.csv']);
-    $controller = new App\Http\Controllers\ImportacionController;
-	$response = $controller->store($request);
-	dump($response);
-	/*
-	\App\Jobs\ImportacionJob::withChain([
-	    new \App\Jobs\BeneficiarioCheckJob
-	])->dispatch();
-	*/
-});
 
 Artisan::command('sumar:check', function() {
-	\App\Jobs\BeneficiarioCheckJob::dispatch();
-});
+	$id_importacion = 1;
+	$id_provincia = '01';
 
+	$jobBag = [
+			'id_importacion' => $id_importacion,
+			'id_provincia' => $id_provincia,
+		];
+
+
+        $jobs = [
+			//new ClaseDocumentoComunidadJob,
+			//new ClaseDocumentoJob,
+			//new ClaveBeneficiarioJob,
+new App\Jobs\FechaDeNacimientoJob($jobBag),
+new App\Jobs\NombreBeneficiarioJob($jobBag),
+new App\Jobs\ApellidoBeneficiarioJob($jobBag),
+new App\Jobs\SexoBeneficiarioJob($jobBag),
+new App\Jobs\TipoDocumentoJob($jobBag),
+new App\Jobs\IdFacturaJob($jobBag),
+new App\Jobs\IdLiquidacionJob($jobBag),
+new App\Jobs\IdOpJob($jobBag),
+			//new TipoDocumentoComunidadJob,
+		];
+
+	  foreach($jobs as $job) {
+		$job->dispatch($jobBag)->onQueue($id_provincia.'-queue');
+	  }
+});
 
 Artisan::command('sumar:status', function() {
 	$result = \DB::select("select count(*) from prestaciones;");
@@ -66,7 +91,7 @@ Artisan::command('sumar:status', function() {
 });
 
 Artisan::command('sumar:export', function() {
-	$query = "\copy (select id_prestacion,prestacion_codigo,cuie,prestacion_fecha,beneficiario_apellido,beneficiario_nombre,beneficiario_clave,beneficiario_tipo_documento,beneficiario_clase_documento,beneficiario_nro_documento,beneficiario_sexo,beneficiario_nacimiento,valor_unitario_facturado,cantidad_facturado,importe_prestacion_facturado,id_factura,factura_nro,factura_fecha,factura_importe_total,factura_fecha_recepcion,alta_complejidad,id_liquidacion,liquidacion_fecha,valor_unitario_aprobado,cantidad_aprobada,importe_prestacion_aprobado,numero_comprobante_extracto_bancario,id_dato_reportable_1,dato_reportable_1,id_dato_reportable_2,dato_reportable_2,id_dato_reportable_3,dato_reportable_3,id_dato_reportable_4,dato_reportable_4,id_dato_reportable_5,dato_reportable_5,id_op,numero_op,fecha_op,importe_total_op,numero_expte,fecha_debito_bancario,importe_debito_bancario,fecha_notificacion_efector from prestaciones where id_provincia = '02') TO '/var/www/html/sirge/storage/app/prestaciones_02.csv' DELIMITER ';' CSV HEADER;";
+	$query = "\copy (select id_prestacion,prestacion_codigo,cuie,prestacion_fecha,beneficiario_apellido,beneficiario_nombre,beneficiario_clave,beneficiario_tipo_documento,beneficiario_clase_documento,beneficiario_nro_documento,beneficiario_sexo,beneficiario_nacimiento,valor_unitario_facturado,cantidad_facturado,importe_prestacion_facturado,id_factura,factura_nro,factura_fecha,factura_importe_total,factura_fecha_recepcion,alta_complejidad,id_liquidacion,liquidacion_fecha,valor_unitario_aprobado,cantidad_aprobada,importe_prestacion_aprobado,numero_comprobante_extracto_bancario,id_dato_reportable_1,dato_reportable_1,id_dato_reportable_2,dato_reportable_2,id_dato_reportable_3,dato_reportable_3,id_dato_reportable_4,dato_reportable_4,id_dato_reportable_5,dato_reportable_5,id_op,numero_op,fecha_op,importe_total_op,numero_expte,fecha_debito_bancario,importe_debito_bancario,fecha_notificacion_efector from prestaciones where id_provincia = '02') TO '/var/www/html/sirge-api/storage/app/prestaciones_02.csv' DELIMITER ';' CSV HEADER;";
 	$this->info($query);
 });
 
@@ -241,3 +266,35 @@ Artisan::command("sumar:validar", function () {
 		dispatch($job);
 	}
 });
+
+Artisan::command("sumar:provincias", function () {
+		$provincias = [
+			'CABA' => '01',
+			'BUENOS AIRES' => '02',
+			'CATAMARCA' => '03',
+			'CORDOBA' => '04',
+			'CORRIENTES' => '05',
+			'ENTRE RIOS' => '06',
+			'JUJUY' => '07',
+			'LA RIOJA' => '08',
+			'MENDOZA' => '09',
+			'SALTA' => '10',
+			'SAN JUAN' => '11',
+			'SAN LUIS' => '12',
+			'SANTA FE' => '13',
+			'SANTIAGO DEL ESTERO' => '14',
+			'TUCUMAN' => '15',
+			'CHACO' => '16',
+			'CHUBUT' => '17',
+			'FORMOSA' => '18',
+			'LA PAMPA' => '19',
+			'MISIONES' => '20',
+			'NEUQUEN' => '21',
+			'RIO NEGRO' => '22',
+			'SANTA CRUZ' => '23',
+			'TIERRA DEL FUEGO' => '24',
+		];
+	dd($provincias);
+});
+
+

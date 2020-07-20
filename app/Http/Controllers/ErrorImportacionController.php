@@ -44,9 +44,10 @@ class ErrorImportacionController extends Controller
      * @param  \App\ErrorImportacion  $errorImportacion
      * @return \Illuminate\Http\Response
      */
-    public function show(ErrorImportacion $errorImportacion)
+    public function show(ErrorImportacion $errorImportacion, $id_importacion)
     {
-        //
+		\Log::info($id_importacion);
+//        return $errorImportacion->where('id_importacion', $id_importacion)->select('');
     }
 
     /**

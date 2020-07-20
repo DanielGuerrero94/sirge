@@ -51,19 +51,23 @@
 					</div>
 
 					<div class="row">
-						<form action="" method="pmst" enctype="multipart/form-data" id="subida">
+						<form method="post" enctype="multipart/form-data" id="subida" name="form-upload">
 							<div class="col col-md-3">
 								<span class="btn btn-default fileinput-button">
 									<i class="glyphicon glyphicon-plus"></i>
 									<span>Seleccionar archivo</span>
-									<input id="fileupload" type="file" name="file" multiple>
+									<input id="fileupload" type="file" name="file">
 								</span>
 							</div>
+							<div class="col col-md-3" hidden>
+								<div id="upload-progress" class="progress">
+								</div>
+							</div>
+
 							@if(true)
 							<div class="col col-md-3">
 								<select class="form-control" id="provincia" name="id_provincia" aria-hidden="true"
 									placeholder="Seleccionar Provincia">
-									<option data-id="0">Seleccionar Provincia</option>
 									@foreach($provincias as $provincia)
 									<option data-id="{{$provincia->id_provincia}}" value="{{$provincia->id_provincia}}">
 										{{$provincia->descripcion}}</option>
@@ -179,8 +183,9 @@
 		$("#refresh").hide()
 	}
 
-	function showErrores() {
-		datatableErrores()
+	function showErrores(id) {
+		//datatableErrores(id)
+		resumenErrores(id)
 		$("#errores-box").show()
 		$("#diccionario-box").hide()
 		$("#advertencias-box").hide()
@@ -234,6 +239,7 @@
 			destroy: true,
 			debug: true,
 			processing: false,
+			responsive: true,
 			columnDefs: [
 	            { width: 50, targets: 0 },
 	            { width: 100, targets: 2 },
@@ -246,13 +252,12 @@
 			columns: [
 				{ data: 'id_provincia', title: 'Provincia' },
 				{ data: 'periodo', title: "Periodo" },
-				{ data: 'fecha', title: 'Subida' },
 				{ data: 'facturadas', title: "Facturadas" },
 				{ data: 'liquidadas', title: "Liquidadas" },
 				{ data: 'pagadas', title: "Pagadas" },
 				{   title: "Estado",
 					render: function (data, type, row) {
-						now = row.progress
+						now = +row.insertados + +row.errores
 						max = row.total
 						percentage = now * 100 / max
 						percentage = percentage.toFixed(2)
@@ -262,11 +267,24 @@
 				},
 				{
 					render: function (data, type, row) {
-						if(row.progress == 110995) {
-						return '<button onclick="showAdvertencias()" class="btn btn-warning btn-xs" title="Advertencias"><i class="fa fa-info-circle"> Advertencias</i></button> <button onclick="showErrores()" class="btn btn-danger btn-xs" title="Errores"><i class="fa fa-exclamation-circle"> Errores </i></button>'
-						} 
-						return '<button onclick="showAdvertencias()" class="btn btn-warning btn-xs" disabled> Advertencias</button>  <button onclick="showErrores()" class="btn btn-danger btn-xs" disabled> Errores</button>'
+						if(row.advertencias > 0) {
+							return '<button onclick="showAnalisis()" class="btn btn-primary btn-xs" title="Detalle" style="margin-top:4px"><i class="fa fa-info-circle"> Detalle</i></button>';
+							}
 
+						html = 'Importando'
+
+						if(+row.insertados + +row.errores == row.total || +row.insertados + +row.errores == row.total - 1) {
+							html = 'Validaciones'
+							if(row.errores > 0) {
+/*
+								html += '<button onclick="showErrores(' + row.id + ')" class="btn btn-danger btn-xs" title="Errores"><i class="fa fa-exclamation-circle"> Errores </i></button>';
+*/
+								html += ' - Errores: ' + row.errores
+							}
+
+						}
+
+						return html
 					},
 					orderable: false
 				}
@@ -286,6 +304,19 @@
 			console.log(error)
 		});
 	}
+
+	function resumenErrores(id) {
+		$.ajax({
+		  url: "api/errores_importacion/" + id,
+		}).done(function(data) {
+			resumen = JSON.parse(data)
+			console.log(resumen);
+		}).fail(function(error) {
+			alert("Error")
+			console.log(error)
+		});
+	}
+
 
 	function renderAdvertencia(id) {
 		return tiposAdvertencia.filter(function(a) {return a.id == id}).shift().column
@@ -315,7 +346,14 @@
 	function datatableErrores() {
 		return $('#errores-datatable').DataTable({
 			destroy: true,
-			processing: true,
+			debug: true,
+			processing: false,
+			responsive: true,
+			columnDefs: [
+	            { width: 50, targets: 0 },
+	            { width: 100, targets: 2 },
+	        ],
+	        fixedColumns: true,
 			ajax: {
 				url: 'api/errores_importacion',
 				dataSrc: 'data',
@@ -429,7 +467,7 @@
 			setTimeout(function(){ 
 				$('#datatable').DataTable().ajax.reload();
 				refresh()
-			}, 2000);
+			}, 4000);
 		}
 		
 		refresh()
@@ -458,12 +496,44 @@
 
 		$("#subir-box").on("change", "#subida input", function (event) {
 			//var data = getDataUploadFile();
-			var data = new FormData($("#subida")[0]);
-			console.log(data)
+			//var data = new FormData($("#subida")[0]);
+			var formData = new FormData();
+			formData.append('_token', $("#token").val());
+			formData.append('provincia', $("#provincia").val());
+			// Attach file
+			formData.append('file', $('input[type=file]')[0].files[0]);
+			for (var pair of formData.entries()) {
+			    console.log(pair[0]+ ', ' + pair[1]); 
+			}
+	
+			console.log($('input[type=file]')[0]);
+			$("#upload-progress").parent().show();
+
+
 			$.ajax({
+				xhr: function() {
+				    var xhr = new window.XMLHttpRequest();
+		
+				    xhr.upload.addEventListener("progress", function(evt) {
+		            if (evt.lengthComputable) {
+		      		  var percentComplete = evt.loaded / evt.total;
+		              percentComplete = parseInt(percentComplete * 100);
+			          console.log(percentComplete);
+						
+					  $("#upload-progress").html('<div style="margin-top:4px" class="progress-bar progress-bar-sucess progress-bar-striped" role="progressbar" style="width: ' + percentComplete + '%" aria-valuenow="' + evt.loaded + '" aria-valuemin="0" aria-valuemax="' + evt.total + '" title="' + evt.loaded + '/' + evt.total + '">' + percentComplete + '%</div>');
+
+			  	      if (percentComplete === 100) {
+						$("#upload-progress").hide();
+			    	  }
+
+				    }
+				  }, false);
+
+				    return xhr;
+				},
 				url: "api/postCsv",
 				type: 'post',
-				data: data,
+				data: formData,
 				processData: false,
 				contentType: false,
 				success: function (data) {

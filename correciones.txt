@@ -1,0 +1,23 @@
+provincia 10 salta 
+le tuve que agregar 10 columnas al csv.
+puse 10 ; en cada linea
+
+provincia 08 la rioje
+le tuve que agregar 1 columna al csv
+
+provincia 04 cordoba
+if(in_array("id_prestacion", $data) || in_array('Id_Prestacin', $data)) {
+manda los headers distintos, voy a tener que encontrar otra forma de verificar si incluye headers
+el primer valor es b"Id_Prestacin" y no lo puedo ni agarrar asi que uso "CUIE_Efector"
+despues me tira que uno de los valores no esta en utf8
+puedo verificar antes el archivo pero ya me parece mucho
+file -i me da que no reconoce el formato
+storage/app/prestaciones_04.csv: text/plain; charset=unknown-8bit
+
+hay que verificar que no se descomprima mal, si se puede abrir en windows con notepad por ejemplo
+
+provincia 06 entre rios
+me dio el id de prestacion con puntos
+como uso el id de prestacion para guardar el error y me estaba mandando algo que no se podia insertar, tiraba error el insert a la tabla de errores avisando del error jajaj
+lo castie y corrio
+

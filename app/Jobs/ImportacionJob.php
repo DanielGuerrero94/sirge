@@ -33,7 +33,7 @@ class ImportacionJob implements ShouldQueue
     {
 		$this->id_provincia = $data['id_provincia'];
 		$this->periodo = $data['periodo'];
-		$this->filename = '/var/www/html/sirge/storage/app/'.$data['filename'];
+		$this->filename = '/var/www/html/sirge-api/storage/app/'.$data['filename'];
 
 		
 		$this->headers = ['id_prestacion','prestacion_codigo','cuie','prestacion_fecha','beneficiario_apellido','beneficiario_nombre','beneficiario_clave','beneficiario_tipo_documento','beneficiario_clase_documento','beneficiario_nro_documento','beneficiario_sexo','beneficiario_nacimiento','valor_unitario_facturado','cantidad_facturado','importe_prestacion_facturado','id_factura','factura_nro','factura_fecha','factura_importe_total','factura_fecha_recepcion','alta_complejidad','id_liquidacion','liquidacion_fecha','valor_unitario_aprobado','cantidad_aprobada','importe_prestacion_aprobado','numero_comprobante_extracto_bancario','id_dato_reportable_1','dato_reportable_1','id_dato_reportable_2','dato_reportable_2','id_dato_reportable_3','dato_reportable_3','id_dato_reportable_4','dato_reportable_4','id_dato_reportable_5','dato_reportable_5','id_op','numero_op','fecha_op','importe_total_op','numero_expte','fecha_debito_bancario','importe_debito_bancario','fecha_notificacion_efector'];
@@ -49,20 +49,31 @@ class ImportacionJob implements ShouldQueue
     {
 		$this->createImportation();
 
+	
 		if (($handle = fopen($this->filename, "r")) !== FALSE) {
 			for($i = 1;($data = fgetcsv($handle, 1000, ";")) !== FALSE; $i++) {
+
+				//Excepcion por headers, excepcion por cordoba
+				if(in_array("id_prestacion", $data) || in_array("CUIE_Efector", $data)) {
+					continue;
+				}
+
 				$data = array_map(function($value) {
 				   return $value === "" ? NULL : $value;
 				}, $data);
-		
-				$data = array_combine($this->headers, $data);
+
+				try {
+					$data = array_combine($this->headers, $data);
+				} catch (\ErrorException $e) {
+					\Log::error($e->getMessage());
+					continue;	
+				}
 				$data['id_importacion'] = $this->id_importacion;
 				$data['id_provincia'] = $this->id_provincia;
 
 				if($this->id_provincia == '01') {
 					$data['id_factura'] = substr($data['id_factura'], 0, strlen($data['id_factura']) - 8);	
 				}
-
 
 				$this->insertPrestacion($data);
 			}
@@ -78,6 +89,7 @@ class ImportacionJob implements ShouldQueue
 	public function insertPrestacion($data)
 	{
 	    try {
+		    var_dump(["status" => "INSERT", "data" => $data]);
 	  		Prestacion::create($data);
 		} catch(PDOException $e) {
 			if($e->getCode() == 22003) {
@@ -104,9 +116,9 @@ class ImportacionJob implements ShouldQueue
 		ErrorImportacion::create([
 			'id_importacion' => $this->id_importacion,
 			'id_provincia' => $this->id_provincia,
-			'id_prestacion' => $data['id_prestacion'],
+			'id_prestacion' => (int)$data['id_prestacion'],
 			'codigo' => $e->getCode(),
-			'mensaje' => $mensaje,
+			'mensaje' => json_encode($mensaje),
 		]);
 		\Log::error($e->getMessage());
 	}
@@ -127,6 +139,7 @@ class ImportacionJob implements ShouldQueue
 			'pagadas' => 0
 		]);
 		$this->id_importacion = $importacion->id;
+		\Log::info($importacion);
 	}
 
 	public function getLinesCount()
@@ -153,11 +166,12 @@ class ImportacionJob implements ShouldQueue
 			new ApellidoBeneficiarioJob($jobBag),
 			new SexoBeneficiarioJob($jobBag),
 			new TipoDocumentoJob($jobBag),
+			new IdFacturaJob($jobBag),
 			//new TipoDocumentoComunidadJob,
 		];
 
 	  foreach($this->jobs as $job) {
-		$job->dispatch($jobBag);
+		$job->dispatch($jobBag)->onQueue($this->id_provincia.'-queue');
 	  }
 	}
 	

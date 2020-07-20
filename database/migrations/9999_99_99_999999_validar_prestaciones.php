@@ -15,6 +15,20 @@ class ValidarPrestaciones extends Migration
     {
 
 		$statements[] = <<<'HEREDOC'
+DROP VIEW IF EXISTS v_jobs_analisis;
+HEREDOC;
+
+		$statements[] = <<<'HEREDOC'
+create view v_jobs_analisis as (select json.data::json->>'id_tipo_advertencia' as id_tipo_advertencia, json.status, json.queue, json.data::json->>'column' as column, json.data::json->>'id_importacion' as id from (select content::json->>'status' as status, content::json->>'queue' as queue, content::json->>'data' as data from telescope_entries where type = 'job') as json where json.data::json->>'column' is not null)
+HEREDOC;
+
+		$statements[] = <<<'HEREDOC'
+DROP VIEW IF EXISTS v_importacion_resumen;
+HEREDOC;
+		$statements[] = <<<'HEREDOC'
+create view v_importacion_resumen as (select *, (select count(*) from error_importacions where id_importacion = i.id) as errores, (select count(*) from prestaciones where id_importacion = i.id) as insertados, (select count(*) from advertencias where id_importacion = i.id) as advertencias from importaciones i);
+HEREDOC;
+		$statements[] = <<<'HEREDOC'
 CREATE OR REPLACE FUNCTION validar_prestaciones() RETURNS trigger AS $validar_prestaciones$
 	DECLARE
 	  text_var1 text;
@@ -121,6 +135,31 @@ CREATE OR REPLACE FUNCTION check_clase_documento(check_id_importacion integer, c
     END;
 $check_clase_documento$ LANGUAGE plpgsql;
 HEREDOC;
+
+		$statements[] = <<<'HEREDOC'
+CREATE OR REPLACE FUNCTION check_id_factura(check_id_importacion integer, check_id_provincia character(2)) RETURNS table(id_importacion integer, id_provincia character(2), id_prestacion bigint, id_factura bigint) AS $check_id_factura$
+    BEGIN
+		RETURN QUERY SELECT prestaciones.id_importacion, prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.id_factura from prestaciones where prestaciones.id_factura is null;
+    END;
+$check_id_factura$ LANGUAGE plpgsql;
+HEREDOC;
+
+		$statements[] = <<<'HEREDOC'
+CREATE OR REPLACE FUNCTION check_id_liquidacion(check_id_importacion integer, check_id_provincia character(2)) RETURNS table(id_importacion integer, id_provincia character(2), id_prestacion bigint, id_liquidacion bigint) AS $check_id_liquidacion$
+    BEGIN
+		RETURN QUERY SELECT prestaciones.id_importacion, prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.id_liquidacion from prestaciones where prestaciones.id_liquidacion is null;
+    END;
+$check_id_liquidacion$ LANGUAGE plpgsql;
+HEREDOC;
+
+		$statements[] = <<<'HEREDOC'
+CREATE OR REPLACE FUNCTION check_id_op(check_id_importacion integer, check_id_provincia character(2)) RETURNS table(id_importacion integer, id_provincia character(2), id_prestacion bigint, id_op bigint) AS $check_id_op$
+    BEGIN
+		RETURN QUERY SELECT prestaciones.id_importacion, prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.id_op from prestaciones where prestaciones.id_op is null;
+    END;
+$check_id_op$ LANGUAGE plpgsql;
+HEREDOC;
+
 
 		foreach($statements as $statement) {
 			DB::statement($statement);
