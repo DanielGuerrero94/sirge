@@ -14,6 +14,6 @@ class IdLiquidacionJob extends CheckJob implements ShouldQueue
 
 	protected $procedure = 'check_id_liquidacion';
 	protected $column = "id_liquidacion";
-	protected $id_tipo_advertencia = 10;
+	protected $id_tipo_advertencia = 8;
 
 }

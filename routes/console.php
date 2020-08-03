@@ -85,6 +85,32 @@ new App\Jobs\IdOpJob($jobBag),
 	  }
 });
 
+Artisan::command('sumar:advertencias {id_importacion} {--clear} {--run}', function() {
+	$id =  $this->argument('id_importacion');
+	$clear =  $this->option('clear');
+	$run =  $this->option('run');
+	if($clear) {
+		$this->info("DELETE");
+		DB::statement("delete from public.advertencias where id_importacion = ".$id);
+		DB::statement("delete from telescope_entries where sequence in (select sequence from v_jobs_analisis where queue = '01-queue')");
+		return;
+	}
+
+	if($run) {
+		$jobBag = [
+			'id_importacion' => $id,
+			'id_provincia' => '01',
+		];
+
+		$this->info("RUN");
+		App\Jobs\BeneficiarioCheckJob::dispatch($jobBag)->onQueue('01'.'-queue');
+		return;
+	}
+
+	$advertencias = DB::select("select count(*) from public.advertencias where id_importacion = ".$id);
+	dd($advertencias);
+})->describe('Display column and type of a table');
+
 Artisan::command('sumar:status', function() {
 	$result = \DB::select("select count(*) from prestaciones;");
 	$this->info(json_encode($result));
@@ -297,4 +323,14 @@ Artisan::command("sumar:provincias", function () {
 	dd($provincias);
 });
 
-
+Artisan::command('doi3:usuarios', function () {
+	$usuarios = DB::connection('sirge')->select('select id_usuario from sistema.usuarios where id_menu in (select id_menu from sistema.modulos_menu where id_modulo = 3) order by id_usuario');
+	foreach($usuarios as $usuario){
+		$user = App\UsuarioSirge::find($usuario->id_usuario);
+		$this->info($user->id_usuario);
+		$faker = \Faker\Factory::create();
+		$user->token = $faker->uuid;
+		$this->info($user->token);
+		$user->save();
+	}
+})->describe('Add token');

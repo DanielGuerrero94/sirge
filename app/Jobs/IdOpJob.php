@@ -14,6 +14,6 @@ class IdOpJob extends CheckJob implements ShouldQueue
 
 	protected $procedure = 'check_id_op';
 	protected $column = "id_op";
-	protected $id_tipo_advertencia = 11;
+	protected $id_tipo_advertencia = 9;
 
 }

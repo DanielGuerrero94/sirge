@@ -16,7 +16,7 @@
                     </h2>
                   </div>
                   <div id="collapseLast" class="panel-collapse collapse" aria-expanded="true" style="height: 0px;">
-                    <div class="box-body" id="errores-body">
+                    <div class="box-body" id="errores-box">
                     </div>
                   </div>
                 </div>
@@ -142,14 +142,34 @@ function copiar() {
 
 $(document).ready(function (){
 
+	function getErrors(id) {
+		$.ajax({
+			url: "api/importaciones/" + id + "/errores",
+		}).done(function (data) {
+			console.log(data)
+			errors = JSON.parse(data)
+			console.log(errors)
+			
+			errors.forEach(function(error) {
+				html = makeErrorRow(error)
+				$("#errores-box").append(html);
+			})
+		
+		}).fail(function (error) {
+			alert("Error")
+			console.log(error)
+		});
+	}
+
+
 
 	function getJobs(id) {
 		$.ajax({
-			url: "api/jobs",
+			url: "api/importaciones/" + id + "/validaciones" ,
 		}).done(function (data) {
 			console.log(data)
 			jobs = JSON.parse(data)
-			console.log(json)
+			console.log(jobs)
 			
 			jobs.forEach(function(job) {
 				html = makeRow(job)
@@ -198,8 +218,41 @@ $(document).ready(function (){
 		return html
 	}
 
+	function makeErrorRow(error) {
+		html = `<div class="row">
+		    <div class="col col-md-3">
+		 	  <p>` + error.codigo + `</p>
+		    </div>
+			<div class="col col-md-3">
+		 	  <a href="https://www.postgresql.org/docs/current/errcodes-appendix.html">Errores</a>
+			</div>
+			<div class="col col-md-2">
+		 	  <p>` + error.cantidad + `</p>
+			</div>
+			<div class="col col-md-4">`
+
+		if (error.cantidad > 0) {
+		  html += `<span class="btn btn-xs btn-default" id="ta-`
+				+ error.codigo + 
+				`" onclick="copyPaste(` 
+				+ error.codigo  + 
+				`)" >Copiar ids</span>     `
+		  html += `<span class="btn btn-xs btn-default">Ver tabla</span>`
+		}
+
+		html +=
+			  `<span class="btn btn-xs pull-right">Ver ejemplo</span>
+			</div>
+		</div>
+		`
+
+		return html
+	}
 
 
-getJobs(1)
+
+
+getJobs({{ $id }})
+getErrors({{ $id }})
 })
 </script>

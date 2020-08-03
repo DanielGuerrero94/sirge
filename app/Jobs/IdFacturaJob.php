@@ -14,6 +14,6 @@ class IdFacturaJob extends CheckJob implements ShouldQueue
 
 	protected $procedure = 'check_id_factura';
 	protected $column = "id_factura";
-	protected $id_tipo_advertencia = 9;
+	protected $id_tipo_advertencia = 7;
 
 }

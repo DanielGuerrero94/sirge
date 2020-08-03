@@ -16,6 +16,6 @@ class ClaseDocumentoJob extends CheckJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 	protected $procedure = "check_clase_documento";
-	protected $column = "clase_documento";
-	protected $id_tipo_advertencia = 1;
+	protected $column = "beneficiario_clase_documento";
+	protected $id_tipo_advertencia = 6;
 }

@@ -15,7 +15,8 @@ class ImportacionController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth', ['except' => ['store', 'index']]);
+        //$this->middleware('auth', ['except' => ['store', 'index', 'errores']]);
+        $this->middleware('guest');
     }
 
     /**
@@ -127,4 +128,21 @@ class ImportacionController extends Controller
     {
         //
     }
+
+	public function errores(int $id_importacion = 1)
+	{
+        return \DB::select('select * from v_errores_importacion e where e.id_importacion = '.$id_importacion);
+	}
+
+    public function validaciones(int $id_importacion = 1)
+    {
+        return \DB::select('select ta.id as id_tipo_advertencia, ta.column, ta.message, a.status, (select count(*) from advertencias ad where ad.id_importacion = a.id::int and ad.id_tipo_advertencia = ta.id) from tipo_advertencias ta left join v_jobs_analisis a on a.id_tipo_advertencia::int = ta.id where a.id::int = '.$id_importacion);
+    }
+
+	public function analisis(int $id_importacion = 1)
+    {
+		$data = ['id' => $id_importacion];
+		return view('analisis', $data);
+    }
+
 }

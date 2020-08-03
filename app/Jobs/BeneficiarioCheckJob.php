@@ -13,22 +13,32 @@ class BeneficiarioCheckJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 	protected $jobs = [];
+	protected $jobBag = [];
+	protected $id_provincia;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($bag)
     {
+		$this->jobBag = [
+			'id_importacion' => $bag['id_importacion'],
+			'id_provincia' => $bag['id_provincia'],
+		];
+
+        $this->id_provincia = $bag['id_provincia'];
+
+
         $this->jobs = [
-			new ClaseDocumentoComunidadJob,
-			new ClaseDocumentoJob,
-			new ClaveBeneficiarioJob,
-			new FechaDeNacimientoJob,
-			new SexoBeneficiarioJob,
-			new TipoDocumentoComunidadJob,
-			new TipoDocumentoJob
+			new ApellidoBeneficiarioJob($bag),
+			new ClaseDocumentoJob($bag),
+			new ClaveBeneficiarioJob($bag),
+			new FechaDeNacimientoJob($bag),
+			new NombreBeneficiarioJob($bag),
+			new SexoBeneficiarioJob($bag),
+			new TipoDocumentoJob($bag)
 		];
     }
 
@@ -40,8 +50,9 @@ class BeneficiarioCheckJob implements ShouldQueue
     public function handle()
     {
         $jobs = collect($this->jobs);
-		$jobs->each(function($job) {
-			$job->dispatch();
+		$bag = $this->jobBag;
+		$jobs->each(function($job) use ($bag) {
+			$job->dispatch($bag)->onQueue($bag['id_provincia'].'-queue');
 		});
     }
 }

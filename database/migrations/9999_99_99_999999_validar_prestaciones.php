@@ -19,9 +19,17 @@ DROP VIEW IF EXISTS v_jobs_analisis;
 HEREDOC;
 
 		$statements[] = <<<'HEREDOC'
-create view v_jobs_analisis as (select json.data::json->>'id_tipo_advertencia' as id_tipo_advertencia, json.status, json.queue, json.data::json->>'column' as column, json.data::json->>'id_importacion' as id from (select content::json->>'status' as status, content::json->>'queue' as queue, content::json->>'data' as data from telescope_entries where type = 'job') as json where json.data::json->>'column' is not null)
+create view v_jobs_analisis as (select json.sequence, json.data::json->>'id_tipo_advertencia' as id_tipo_advertencia, json.status, json.queue, json.data::json->>'column' as column, json.data::json->>'id_importacion' as id from (select content::json->>'status' as status, content::json->>'queue' as queue, content::json->>'data' as data, sequence from telescope_entries where type = 'job') as json where json.data::json->>'column' is not null)
 HEREDOC;
 
+		$statements[] = <<<'HEREDOC'
+DROP VIEW IF EXISTS v_errores_importacion;
+HEREDOC;
+
+
+		$statements[] = <<<'HEREDOC'
+create view v_errores_importacion as (select id_importacion, id_provincia, codigo, count(*) as cantidad from error_importacions group by id_importacion, id_provincia, codigo);
+HEREDOC;
 		$statements[] = <<<'HEREDOC'
 DROP VIEW IF EXISTS v_importacion_resumen;
 HEREDOC;
@@ -84,7 +92,7 @@ HEREDOC;
 		$statements[] = <<<'HEREDOC'
 CREATE OR REPLACE FUNCTION check_nombre(check_id_importacion integer, check_id_provincia character(2)) RETURNS table(id_importacion integer, id_provincia character(2), id_prestacion bigint, beneficiario_nombre character(100)) AS $check_nombre$
     BEGIN
-		RETURN QUERY SELECT prestaciones.id_importacion, prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.beneficiario_nombre::character(100) from prestaciones where prestaciones.beneficiario_nombre is null;
+		RETURN QUERY SELECT prestaciones.id_importacion, prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.beneficiario_nombre::character(100) from prestaciones where prestaciones.id_importacion = check_id_importacion and prestaciones.id_provincia = check_id_provincia and prestaciones.beneficiario_nombre is null;
     END;
 $check_nombre$ LANGUAGE plpgsql;
 HEREDOC;
@@ -96,7 +104,7 @@ HEREDOC;
 		$statements[] = <<<'HEREDOC'
 CREATE OR REPLACE FUNCTION check_apellido(check_id_importacion integer, check_id_provincia character(2)) RETURNS table(id_importacion integer, id_provincia character(2), id_prestacion bigint, beneficiario_apellido character(100)) AS $check_apellido$
     BEGIN
-		RETURN QUERY SELECT prestaciones.id_importacion, prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.beneficiario_apellido::character(100) from prestaciones where prestaciones.beneficiario_apellido is null;
+		RETURN QUERY SELECT prestaciones.id_importacion, prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.beneficiario_apellido::character(100) from prestaciones where prestaciones.id_importacion = check_id_importacion and prestaciones.id_provincia = check_id_provincia and prestaciones.beneficiario_apellido is null;
     END;
 $check_apellido$ LANGUAGE plpgsql;
 HEREDOC;
@@ -108,7 +116,7 @@ HEREDOC;
 		$statements[] = <<<'HEREDOC'
 CREATE OR REPLACE FUNCTION check_fecha_nacimiento(check_id_importacion integer, check_id_provincia character(2)) RETURNS table(id_importacion integer, id_provincia character(2), id_prestacion bigint, beneficiario_nacimiento date) AS $check_fecha_nacimiento$
     BEGIN
-		RETURN QUERY SELECT prestaciones.id_importacion, prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.beneficiario_nacimiento::date from prestaciones where prestaciones.beneficiario_nacimiento is null;
+		RETURN QUERY SELECT prestaciones.id_importacion, prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.beneficiario_nacimiento::date from prestaciones where prestaciones.id_importacion = check_id_importacion and prestaciones.id_provincia = check_id_provincia and prestaciones.beneficiario_nacimiento is null;
     END;
 $check_fecha_nacimiento$ LANGUAGE plpgsql;
 HEREDOC;
@@ -119,7 +127,7 @@ HEREDOC;
 		$statements[] = <<<'HEREDOC'
 CREATE OR REPLACE FUNCTION check_sexo(check_id_importacion integer, check_id_provincia character(2)) RETURNS table(id_importacion integer, id_provincia character(2), id_prestacion bigint, beneficiario_sexo character(1)) AS $check_sexo$
     BEGIN
-		RETURN QUERY SELECT prestaciones.id_importacion, prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.beneficiario_sexo from prestaciones where prestaciones.beneficiario_sexo !~ 'M|F';
+		RETURN QUERY SELECT prestaciones.id_importacion, prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.beneficiario_sexo from prestaciones where prestaciones.id_importacion = check_id_importacion and prestaciones.id_provincia = check_id_provincia and prestaciones.beneficiario_sexo !~ 'M|F';
     END;
 $check_sexo$ LANGUAGE plpgsql;
 HEREDOC;
@@ -131,7 +139,7 @@ HEREDOC;
 		$statements[] = <<<'HEREDOC'
 CREATE OR REPLACE FUNCTION check_clase_documento(check_id_importacion integer, check_id_provincia character(2)) RETURNS table(id_importacion integer, id_provincia character(2), id_prestacion bigint, beneficiario_clase_documento character(1)) AS $check_clase_documento$
     BEGIN
-		RETURN QUERY SELECT prestaciones.id_importacion, prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.beneficiario_clase_documento from prestaciones where prestaciones.beneficiario_clase_documento !~ 'A|P|C';
+		RETURN QUERY SELECT prestaciones.id_importacion, prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.beneficiario_clase_documento from prestaciones where prestaciones.id_importacion = check_id_importacion and prestaciones.id_provincia = check_id_provincia and prestaciones.beneficiario_clase_documento !~ 'A|P|C';
     END;
 $check_clase_documento$ LANGUAGE plpgsql;
 HEREDOC;
@@ -139,7 +147,7 @@ HEREDOC;
 		$statements[] = <<<'HEREDOC'
 CREATE OR REPLACE FUNCTION check_id_factura(check_id_importacion integer, check_id_provincia character(2)) RETURNS table(id_importacion integer, id_provincia character(2), id_prestacion bigint, id_factura bigint) AS $check_id_factura$
     BEGIN
-		RETURN QUERY SELECT prestaciones.id_importacion, prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.id_factura from prestaciones where prestaciones.id_factura is null;
+		RETURN QUERY SELECT prestaciones.id_importacion, prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.id_factura from prestaciones where prestaciones.id_importacion = check_id_importacion and prestaciones.id_provincia = check_id_provincia and prestaciones.id_factura is null;
     END;
 $check_id_factura$ LANGUAGE plpgsql;
 HEREDOC;
@@ -147,7 +155,7 @@ HEREDOC;
 		$statements[] = <<<'HEREDOC'
 CREATE OR REPLACE FUNCTION check_id_liquidacion(check_id_importacion integer, check_id_provincia character(2)) RETURNS table(id_importacion integer, id_provincia character(2), id_prestacion bigint, id_liquidacion bigint) AS $check_id_liquidacion$
     BEGIN
-		RETURN QUERY SELECT prestaciones.id_importacion, prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.id_liquidacion from prestaciones where prestaciones.id_liquidacion is null;
+		RETURN QUERY SELECT prestaciones.id_importacion, prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.id_liquidacion from prestaciones where prestaciones.id_importacion = check_id_importacion and prestaciones.id_provincia = check_id_provincia and prestaciones.id_liquidacion is null;
     END;
 $check_id_liquidacion$ LANGUAGE plpgsql;
 HEREDOC;
@@ -155,7 +163,7 @@ HEREDOC;
 		$statements[] = <<<'HEREDOC'
 CREATE OR REPLACE FUNCTION check_id_op(check_id_importacion integer, check_id_provincia character(2)) RETURNS table(id_importacion integer, id_provincia character(2), id_prestacion bigint, id_op bigint) AS $check_id_op$
     BEGIN
-		RETURN QUERY SELECT prestaciones.id_importacion, prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.id_op from prestaciones where prestaciones.id_op is null;
+		RETURN QUERY SELECT prestaciones.id_importacion, prestaciones.id_provincia, prestaciones.id_prestacion, prestaciones.id_op from prestaciones where prestaciones.id_importacion = check_id_importacion and prestaciones.id_provincia = check_id_provincia and prestaciones.id_op is null;
     END;
 $check_id_op$ LANGUAGE plpgsql;
 HEREDOC;

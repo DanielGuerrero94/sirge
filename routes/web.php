@@ -13,17 +13,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::view('/', 'welcome');
 
-Route::get('/doi3',function() {
-	config(['database.connections.sirge.port' => '5432']);
-	$provincias = App\Provincia::get();
-	return view('doi3.doi3', ['provincias' => $provincias]);
-});
+Route::get('/doi3', 'DoiController@index');
 
-Route::view('/analisis', 'analisis');
 
 Auth::routes();
 
@@ -36,6 +29,8 @@ Route::get('advertencias/{importacion}', 'AdvertenciaController@jobs');
 Route::resource('diccionarios', 'DiccionarioController');
 Route::resource('advertencias', 'AdvertenciaController');
 Route::resource('tipo_advertencias', 'TipoAdvertenciaController');
-Route::resource('errores_importacion', 'ErrorImportacionController');
+Route::get('analisis/{importacion}', 'ImportacionController@analisis');
+Route::get('importaciones/{importacion}/errores', 'ImportacionController@errores');
+Route::get('importaciones/{importacion}/validaciones', 'ImportacionController@validaciones');
 
 Route::get('tipo_advertencias/export', 'TipoAdvertenciaController@export');

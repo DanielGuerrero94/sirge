@@ -20,7 +20,9 @@
 							<li><a href="#">Descargar ejemplo</a></li>
 						</ul>
 					</div>
+					@if($upload_file_permission)
 					<button class="btn btn-success" id="subir"><i class="fa fa-upload"></i> Subir</button>
+					@endif
 					<button class="btn btn-default pull-right" id="importacion" style="display: none">
 						<i class="fa fa-refresh fa-fw"></i> Tabla
 					</button>
@@ -64,7 +66,7 @@
 								</div>
 							</div>
 
-							@if(true)
+							@if(isset($provincias))
 							<div class="col col-md-3">
 								<select class="form-control" id="provincia" name="id_provincia" aria-hidden="true"
 									placeholder="Seleccionar Provincia">
@@ -161,8 +163,8 @@
 		});
 	}
 
-	function showAnalisis() {
-		getAnalisis(1);
+	function showAnalisis(id) {
+		getAnalisis(id);
 		$("#diccionario-box").hide()
 		$("#subir-box").hide()
 		$("#tabla-box").hide()
@@ -250,7 +252,9 @@
 				dataSrc: 'data',
 			},
 			columns: [
+			@if(isset($provincias))
 				{ data: 'id_provincia', title: 'Provincia' },
+			@endif
 				{ data: 'periodo', title: "Periodo" },
 				{ data: 'facturadas', title: "Facturadas" },
 				{ data: 'liquidadas', title: "Liquidadas" },
@@ -268,7 +272,7 @@
 				{
 					render: function (data, type, row) {
 						if(row.advertencias > 0) {
-							return '<button onclick="showAnalisis()" class="btn btn-primary btn-xs" title="Detalle" style="margin-top:4px"><i class="fa fa-info-circle"> Detalle</i></button>';
+							return '<button onclick="showAnalisis(' + row.id + ')" class="btn btn-primary btn-xs" title="Detalle" style="margin-top:4px"><i class="fa fa-info-circle"> Detalle</i></button>';
 							}
 
 						html = 'Importando'
